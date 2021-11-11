@@ -509,6 +509,6 @@ class reset(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = application()
+    ex = reset()
     #application.GO = True
     sys.exit(app.exec())
