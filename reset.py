@@ -40,9 +40,11 @@ class reset(QWidget):
     timer = None
     reset = False
 
-    def __init__(self):
+    def __init__(self,w,h):
         super().__init__()
-        self.init_UI()
+        self.width = w
+        self.height = h
+        #self.init_UI()
         
         #time maybe?
         self.timer = QTimer(self)
@@ -98,7 +100,7 @@ class reset(QWidget):
         
         mines = int(round(float(self.width*self.height / 8),1))
         print(f"mines: {mines}")
-        self.init_UI()
+        #self.init_UI()
 
 
     def init_UI(self):
@@ -167,47 +169,7 @@ class reset(QWidget):
         self.button.setIcon(QIcon(pixmap4))
         self.button.setIconSize(QSize(100,100))
         self.button.setFlat(True)
-        self.button.clicked.connect(self.reset_clicked)
-    '''
-    def reset_game(self):
-        global row,MINErow,mines,MINErow2,FLAGrow,usedSlots,notLost,mine,mines,test,rand,usedmines
-        if self.reset:
-            self.timer.stop()
-            self.close()
-            
-            for y in range(self.width):
-                for x in range(self.height):
-                    self.buttons[int(row[y][x])].setStyleSheet("background-color: light gray")
-                    self.buttons[int(row[y][x])].setEnabled(True)
-            
-            row[:][:] = []
-            MINErow[:][:] = []
-            MINErow2[:][:] = []
-            FLAGrow[:][:] = []
-            usedSlots.clear()
-            self.GO = False
-            self.buttons.clear()
-            minesForRow.clear()
-            self.allign = None
-            self.button = None
-            self.flags = 0
-            self.time = 0
-            self.timer = None
-            self.reset = False
-            notLost = True
-            mines = 0
-            mine = 0
-            usedmines = 0
-            rand = 0
-            test = 0
-            
-            self.gen_grid()
-            self.assign_mines()
-            
-            self.timer = QTimer(self)
-            self.timer.timeout.connect(lambda: self.clock())
-            self.timer.start(1000)
-     '''       
+        self.button.clicked.connect(self.reset_clicked)      
     
     @pyqtSlot()
     def reset_clicked(self):
