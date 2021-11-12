@@ -346,11 +346,16 @@ class setup(QWidget):
                     minesForRow[i] = 0
             
         while sum(minesForRow) != mines:
-            mine = mines- sum(minesForRow)
-            rand = random.randint(0,height-1)
-            rand2 = random.randint(0,mine)
-            if rand >= 0:
-                minesForRow[rand] += rand2
+            if sum(minesForRow) < mines:
+                mine = mines- sum(minesForRow)
+                rand = random.randint(0,height-1)
+                rand2 = random.randint(0,mine)
+                if rand >= 0:
+                    minesForRow[rand] += rand2
+            else:
+                rand = random.randint(0,height-1)
+                if int(minesForRow[rand]) > 0:
+                     minesForRow[rand] - 1
         
         rand = 0
         
@@ -384,8 +389,8 @@ class setup(QWidget):
         return QObject.event(obj, event)       
 
     def TEXTrow_fill(self):
-        for i in range(width):
-            for j in range(height):
+        for j in range(width):
+            for i in range(height):
                 adj = 0
                 x = j +2
                 y = i +2
@@ -394,38 +399,8 @@ class setup(QWidget):
                     #print(f"x:{j},y:{i}, text:{adj}")
                     TEXTrow[x][y] = adj
                 else:
-                    if MINErow[x][y-1]: #up
-                        adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x][y+1]:  #down int(height) if y == int(height) else y+1
-                            adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x-1][y]:     #left
-                        adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x+1][y]:     #right
-                        adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x-1][y-1]:#top left
-                        adj += 1
-                    else:
-                        adj += 0 
-                    if MINErow[x+1][y-1]:#top right
-                        adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x-1][y+1]:#bottom left
-                        adj += 1
-                    else:
-                        adj += 0
-                    if MINErow[x+1][y+1]:#bottom right
-                        adj += 1
-                    else:
-                        adj += 0
+                    adj = (adj + 1 * int(MINErow[x][y-1]))+(adj + 1* int(MINErow[x][y+1]))+(adj + 1* int(MINErow[x-1][y]))+(adj + 1* int(MINErow[x+1][y]))+(adj + 1* int(MINErow[x-1][y-1]))+(adj + 1* int(MINErow[x+1][y-1])) + (adj +1* int(MINErow[x-1][y+1])) + (adj + 1* int(MINErow[x+1][y+1]))
+
                 #print(f"x:{j},y:{i}, text:{adj}")
                 TEXTrow[x][y] = str(adj)
         #print(TEXTrow)
@@ -527,6 +502,8 @@ class setup(QWidget):
         
         button = row[x][y]
         usedSlots.append(row[x][y])
+        self.buttons[button].setText(" ")
+        self.buttons[button].setEnabled(False)
         self.buttons[button].setText(" ")
         self.buttons[button].setEnabled(False)
     
