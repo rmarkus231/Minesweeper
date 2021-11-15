@@ -1,7 +1,6 @@
 #from enum import Flag
 import sys
 import os
-from PyQt6 import QtCore
 from PyQt6.QtWidgets import (QWidget, QPushButton, 
     QApplication ,QLineEdit,QLabel, QVBoxLayout, )
 from PyQt6.QtCore import QEvent
@@ -10,7 +9,6 @@ from numpy import *
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtGui import *
 from PyQt6.QtCore import QObject,QSize
-from reset import reset as reset
 import random
 
 row = None
@@ -30,7 +28,6 @@ usedmines = 0
 rand = 0
 test = 0
 notLost = True
-ex = None
 
 class setup(QWidget):
 
@@ -43,6 +40,7 @@ class setup(QWidget):
     time = 0
     timer = None
     reset = False
+    bombClicked = 0
 
     def __init__(self):
         super().__init__()
@@ -178,6 +176,7 @@ class setup(QWidget):
                     self.buttons[int(row[y][x])].setGeometry(10 + x * 40, 60 + y * 40,40,40)
                     self.buttons[int(row[y][x])].setObjectName(str(row[y][x]))
                     self.buttons[int(row[y][x])].installEventFilter(self)
+                    #self.buttons[int(row[y][x])].setStyleSheet("background: rgb(225,225,225)")
 
             self.setGeometry(300, 300, 20 + 40 * height, 70 + 40 * width)
             self.setWindowTitle('Minesweeper')
@@ -232,26 +231,42 @@ class setup(QWidget):
         self.button.clicked.connect(self.reset_clicked)
         
     def reset_game(self):
-        #global row,MINErow,mines,MINErow2,FLAGrow,usedSlots,notLost,mine,mines,test,rand,usedmines
+        global row,MINErow,mines,MINErow2,FLAGrow,usedSlots,notLost,mine,mines,test,rand,usedmines,TEXTrow
         if self.reset:
-            global ex
-            #reset.width = width
-            #reset.height = height
-            #new = reset(width,height)
-            #new.init_UI()
-            ex = reset(width,height)
-            QtCore.QCoreApplication.quit()
-            status = QtCore.QProcess.startDetached(sys.executable, sys.argv)
-            print(status)
+            #set bomb clicked background back to gray
+            self.buttons[self.bombClicked].setStyleSheet("")
+            
+            #empty all neccesary arrays
+            MINErow.fill(False)
+            FLAGrow.fill(False)
+            notLost = True
+            mines = 0
+            mine = 0
+            usedmines = 0
+            rand = 0
+            test = 0
+            self.buttons.clear()
+            usedSlots.clear()
+            self.GO = False
+            self.time = 0
+            TEXTrow.fill('9')
+            self.reset=False
+            
+            #rebuild board
+            self.gen_grid()
+            self.assign_mines()
+            self.TEXTrow_fill()
+            
             
             
             
     
     @pyqtSlot()
     def reset_clicked(self):
+        self.close()
         self.reset = True
         self.reset_game()
-        sys.exit(app.exec())
+        #sys.exit(app.exec())
 
     def clock_at_start(self):
         self.label5 = QLabel(self)
@@ -346,16 +361,20 @@ class setup(QWidget):
                     minesForRow[i] = 0
             
         while sum(minesForRow) != mines:
+            state = 0
             if sum(minesForRow) < mines:
                 mine = mines- sum(minesForRow)
                 rand = random.randint(0,height-1)
                 rand2 = random.randint(0,mine)
                 if rand >= 0:
                     minesForRow[rand] += rand2
+                    state = 1
             else:
                 rand = random.randint(0,height-1)
                 if int(minesForRow[rand]) > 0:
-                     minesForRow[rand] - 1
+                     minesForRow[rand]  = minesForRow[rand] - 1
+                     state = 2
+            print(f"MFR: {minesForRow},MFR sum:{sum(minesForRow)} ,mines:{mines},rand:{rand},state:{state}")
         
         rand = 0
         
@@ -452,6 +471,7 @@ class setup(QWidget):
                 self.buttons[button].setIcon(QIcon(path + os.sep + 'tiles' + os.sep +'flag.png'))
                 self.buttons[button].setIconSize(QSize(100,100))
                 if  array_equal(FLAGrow,MINErow):
+                    #self.GO = False
                     print('You win')
                     pixmap4 = QIcon(path + os.sep + 'digit' + os.sep + 'win.png')
                     self.button.setIcon(pixmap4)
@@ -474,6 +494,7 @@ class setup(QWidget):
                     self.timer.stop()
                     notLost = False
                     print("Game over, you lose!")
+                    self.bombClicked = button
                     self.buttons[button].setStyleSheet("background-color: red")
                     self.buttons[button].setIcon(QIcon(path + os.sep + 'tiles' + os.sep + 'mine.png'))
                     self.buttons[button].setIconSize(QSize(100,100))
